@@ -222,7 +222,8 @@ int read_usb_interface(struct usbip_usb_device *udev, int i,
 	char busid[SYSFS_BUS_ID_SIZE];
 	struct sysfs_device *sif;
 
-	sprintf(busid, "%s:%d.%d", udev->busid, udev->bConfigurationValue, i);
+	snprintf(busid, sizeof(busid), "%s:%d.%d",
+		 udev->busid, udev->bConfigurationValue, i);
 
 	sif = sysfs_open_device("usb", busid);
 	if (!sif) {

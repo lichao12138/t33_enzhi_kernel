@@ -693,12 +693,8 @@ static ssize_t s6e63m0_sysfs_show_gamma_table(struct device *dev,
 				      struct device_attribute *attr, char *buf)
 {
 	struct s6e63m0 *lcd = dev_get_drvdata(dev);
-	char temp[3];
 
-	sprintf(temp, "%d\n", lcd->gamma_table_count);
-	strcpy(buf, temp);
-
-	return strlen(buf);
+	return scnprintf(buf, PAGE_SIZE, "%d\n", lcd->gamma_table_count);
 }
 static DEVICE_ATTR(gamma_table, 0444,
 		s6e63m0_sysfs_show_gamma_table, NULL);

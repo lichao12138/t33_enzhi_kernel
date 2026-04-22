@@ -112,6 +112,7 @@ put_log_buffer(hysdn_card *card, char *cp)
 	struct log_data *ib;
 	struct procdata *pd = card->proclog;
 	int i;
+	size_t cp_len;
 	unsigned long flags;
 
 	if (!pd)
@@ -123,9 +124,12 @@ put_log_buffer(hysdn_card *card, char *cp)
 	if (pd->if_used <= 0)
 		return;		/* no open file for read */
 
-	if (!(ib = kmalloc(sizeof(struct log_data) + strlen(cp), GFP_ATOMIC)))
+	cp_len = strlen(cp) + 1;
+	ib = kmalloc(sizeof(*ib) + cp_len - sizeof(ib->log_start),
+		     GFP_ATOMIC);
+	if (!ib)
 		return;	/* no memory */
-	strcpy(ib->log_start, cp);	/* set output string */
+	memcpy(ib->log_start, cp, cp_len);	/* set output string */
 	ib->next = NULL;
 	ib->proc_ctrl = pd;	/* point to own control structure */
 	spin_lock_irqsave(&card->hysdn_lock, flags);
@@ -336,7 +340,8 @@ hysdn_proclog_init(hysdn_card *card)
 	/* create a cardlog proc entry */
 
 	if ((pd = kzalloc(sizeof(struct procdata), GFP_KERNEL)) != NULL) {
-		sprintf(pd->log_name, "%s%d", PROC_LOG_BASENAME, card->myid);
+		snprintf(pd->log_name, sizeof(pd->log_name), "%s%d",
+			 PROC_LOG_BASENAME, card->myid);
 		pd->log = proc_create_data(pd->log_name,
 				      S_IFREG | S_IRUGO | S_IWUSR, hysdn_proc_entry,
 				      &log_fops, card);

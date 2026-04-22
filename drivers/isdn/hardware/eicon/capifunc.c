@@ -740,12 +740,12 @@ static void diva_register_appl(struct capi_ctr *ctrl, __u16 appl,
 			return;
 	}
 
-	DBG_TRC(("application register Id=%d", appl))
+	if (!application || !appl || appl > MAX_APPL) {
+		DBG_ERR(("CAPI_REGISTER - invalid appl.Id %d", appl))
+			return;
+	}
 
-		if (appl > MAX_APPL) {
-			DBG_ERR(("CAPI_REGISTER - appl.Id exceeds MAX_APPL"))
-				return;
-		}
+	DBG_TRC(("application register Id=%d", appl))
 
 	if (nconn <= 0)
 		nconn = ctrl->profile.nbchannel * -nconn;
@@ -848,8 +848,15 @@ static void diva_register_appl(struct capi_ctr *ctrl, __u16 appl,
 static void diva_release_appl(struct capi_ctr *ctrl, __u16 appl)
 {
 	diva_os_spin_lock_magic_t old_irql;
-	APPL *this = &application[appl - 1];
+	APPL *this;
 	void *mem_to_free = NULL;
+
+	if (!application || !appl || appl > MAX_APPL) {
+		DBG_ERR(("CAPI_RELEASE - invalid appl.Id %d", appl))
+			return;
+	}
+
+	this = &application[appl - 1];
 
 	DBG_TRC(("application %d(%d) cleanup", this->Id, appl))
 
