@@ -403,7 +403,7 @@ void rtw_indicate_sta_assoc_event(_adapter *padapter, struct sta_info *psta)
 	if(psta==NULL)
 		return;
 
-	if(psta->aid > NUM_STA)
+	if (psta->aid == 0 || psta->aid > NUM_STA)
 		return;
 
 	if(pstapriv->sta_aid[psta->aid - 1] != psta)
@@ -430,7 +430,7 @@ void rtw_indicate_sta_disassoc_event(_adapter *padapter, struct sta_info *psta)
 	if(psta==NULL)
 		return;
 
-	if(psta->aid > NUM_STA)
+	if (psta->aid == 0 || psta->aid > NUM_STA)
 		return;
 
 	if(pstapriv->sta_aid[psta->aid - 1] != psta)
