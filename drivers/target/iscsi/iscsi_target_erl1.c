@@ -347,6 +347,8 @@ int iscsit_create_recovery_datain_values_datasequenceinorder_no(
 					seq->pdu_send_order++;
 
 					for (j = 0; j < seq->pdu_count; j++) {
+						if (seq->pdu_start + j >= cmd->pdu_count)
+							break;
 						pdu = &cmd->pdu_list[
 							seq->pdu_start + j];
 						if (pdu->data_sn == data_sn) {
@@ -751,7 +753,9 @@ static int iscsit_recalculate_dataout_values(
 			return 0;
 
 		for (i = 0; i < seq->pdu_count; i++) {
-			pdu = &cmd->pdu_list[i+seq->pdu_start];
+			if (i + seq->pdu_start >= cmd->pdu_count)
+				break;
+			pdu = &cmd->pdu_list[i + seq->pdu_start];
 
 			if (pdu->status != ISCSI_PDU_RECEIVED_OK)
 				continue;

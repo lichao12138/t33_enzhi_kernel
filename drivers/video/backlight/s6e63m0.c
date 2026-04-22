@@ -637,27 +637,19 @@ static ssize_t s6e63m0_sysfs_show_gamma_mode(struct device *dev,
 				      struct device_attribute *attr, char *buf)
 {
 	struct s6e63m0 *lcd = dev_get_drvdata(dev);
-	char temp[10];
-
 	switch (lcd->gamma_mode) {
 	case 0:
-		sprintf(temp, "2.2 mode\n");
-		strcat(buf, temp);
-		break;
+		return scnprintf(buf, PAGE_SIZE, "2.2 mode\n");
 	case 1:
-		sprintf(temp, "1.9 mode\n");
-		strcat(buf, temp);
-		break;
+		return scnprintf(buf, PAGE_SIZE, "1.9 mode\n");
 	case 2:
-		sprintf(temp, "1.7 mode\n");
-		strcat(buf, temp);
-		break;
+		return scnprintf(buf, PAGE_SIZE, "1.7 mode\n");
 	default:
 		dev_info(dev, "gamma mode could be 0:2.2, 1:1.9 or 2:1.7)n");
 		break;
 	}
 
-	return strlen(buf);
+	return 0;
 }
 
 static ssize_t s6e63m0_sysfs_store_gamma_mode(struct device *dev,
@@ -867,4 +859,3 @@ module_spi_driver(s6e63m0_driver);
 MODULE_AUTHOR("InKi Dae <inki.dae@samsung.com>");
 MODULE_DESCRIPTION("S6E63M0 LCD Driver");
 MODULE_LICENSE("GPL");
-

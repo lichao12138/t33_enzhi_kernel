@@ -58,7 +58,8 @@ hysdn_card_errlog(hysdn_card *card, tErrLogEntry *logp, int maxsize)
 {
 	char buf[ERRLOG_TEXT_SIZE + 40];
 
-	sprintf(buf, "LOG 0x%08lX 0x%08lX : %s\n", logp->ulErrType, logp->ulErrSubtype, logp->ucText);
+	snprintf(buf, sizeof(buf), "LOG 0x%08lX 0x%08lX : %s\n",
+		 logp->ulErrType, logp->ulErrSubtype, logp->ucText);
 	put_log_buffer(card, buf);	/* output the string */
 }				/* hysdn_card_errlog */
 
@@ -70,19 +71,27 @@ hysdn_addlog(hysdn_card *card, char *fmt, ...)
 {
 	struct procdata *pd = card->proclog;
 	char *cp;
+	size_t remaining;
 	va_list args;
 
 	if (!pd)
 		return;		/* log structure non existent */
 
 	cp = pd->logtmp;
-	cp += sprintf(cp, "HYSDN: card %d ", card->myid);
+	remaining = sizeof(pd->logtmp);
+	cp += scnprintf(cp, remaining, "HYSDN: card %d ", card->myid);
+	remaining = sizeof(pd->logtmp) - (cp - (char *)pd->logtmp);
 
 	va_start(args, fmt);
-	cp += vsprintf(cp, fmt, args);
+	cp += vscnprintf(cp, remaining, fmt, args);
 	va_end(args);
-	*cp++ = '\n';
-	*cp = 0;
+	remaining = sizeof(pd->logtmp) - (cp - (char *)pd->logtmp);
+	if (remaining > 1) {
+		*cp++ = '\n';
+		*cp = 0;
+	} else {
+		pd->logtmp[sizeof(pd->logtmp) - 1] = '\0';
+	}
 
 	if (card->debug_flags & DEB_OUT_SYSLOG)
 		printk(KERN_INFO "%s", pd->logtmp);
